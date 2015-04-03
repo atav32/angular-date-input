@@ -369,7 +369,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         console.log('%c keydown', 'color:#0b0', event);
         var timestamp = new Date();
         scope.keydown = [String.fromCharCode(event.which), timestamp.getTime()];
-        scope.log.push('keydown: ' + String.fromCharCode(event.which) + ' ' + timestamp.getTime());
+        scope.log.unshift('keydown: ' + String.fromCharCode(event.which) + ' ' + timestamp.getTime());
         if (event.which === 8) {
           // Backspace
           var input = elem.val();
