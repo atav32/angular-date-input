@@ -8,8 +8,6 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       viewFormat: '@',
       formattedDate: '='
     },
-    replace: true,
-    templateUrl: '/partials/dora/common/directives/date_input',
     controller: function ($scope, $attrs) {
 
       $scope.date = {
