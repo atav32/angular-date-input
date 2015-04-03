@@ -2,9 +2,21 @@
 <html ng-app="App">
   <head>
     <title>Date Input Demo</title>
+    <link rel="stylesheet" href="./date_input.css">
   </head>
-  <body>
-    <input date-input ng-model="date" type="text">
+  <body ng-controller="DateInputCtrl">
+    <input date-input ng-model="date"
+           keypress="keypress" keydown="keydown" log="log"
+           class="date-input" type="text" autofocus>
+    <div>Date: <span ng-bind="date"></span></div>
+    <div>Keypress: <span ng-bind="keypress"></span></div>
+    <div>Keydown: <span ng-bind="keydown"></span></div>
+    <br>
+    <div>Log:
+      <div ng-repeat="line in log">
+        <span ng-bind="line"></span>
+      </div>
+    </div>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.13/angular.js"></script>
     <script type="text/javascript" src="./date_input.js"></script>
     <script type="text/javascript" src="./cursor.js"></script>

@@ -1,12 +1,21 @@
 var demoApp = angular.module('App', []);
 
+demoApp.controller('DateInputCtrl', function($scope) {
+  $scope.keypress;
+  $scope.keydown;
+  $scope.log;
+});
+
 demoApp.directive('dateInput', ['cursor', function (cursor) {
   return {
     require: 'ngModel',
     scope: {
       modelFormat: '@',
       viewFormat: '@',
-      formattedDate: '='
+      formattedDate: '=',
+      keypress: '=',
+      keydown: '=',
+      log: '='
     },
     controller: function ($scope, $attrs) {
 
@@ -330,11 +339,16 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       var fieldName = elem.attr('name');
       elem.attr('placeholder', viewFormat);
       elem.attr('maxlength', viewFormat.length);
+      scope.log = [];
 
       elem.bind('keypress', function handleKeyPress(event) {
         // move the cursor if the user enters a number by slicing next character
         var character = String.fromCharCode(event.which);
+        var timestamp = new Date();
         console.log('%c keypress', 'color:#0b0', character, event, '\n\n');
+        scope.keypress = [character, timestamp.getTime()];
+        scope.log.unshift('keypress: ' + character + ' ' + timestamp.getTime() + '\n\n');
+        
         if (/[0-9]/.test(character)) {
           var input = elem.val();
           var cursorPosition = cursor.getPosition(elem);
@@ -353,6 +367,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
 
       elem.bind('keydown', function handleKeyPress(event) {
         console.log('%c keydown', 'color:#0b0', event);
+        var timestamp = new Date();
+        scope.keydown = [String.fromCharCode(event.which), timestamp.getTime()];
+        scope.log.push('keydown: ' + String.fromCharCode(event.which) + ' ' + timestamp.getTime());
         if (event.which === 8) {
           // Backspace
           var input = elem.val();
