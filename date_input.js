@@ -346,8 +346,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var character = String.fromCharCode(event.which);
         var timestamp = new Date();
         console.log('%c keypress', 'color:#0b0', character, event, '\n\n');
+        console.log('%c elem', 'color:#0b0', elem.val());
         scope.keypress = [character, timestamp.getTime()];
-        scope.log.unshift('keypress: ' + character + ' ' + timestamp.getTime() + '\n\n');
+        scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp.getTime() + '\n\n');
         
         if (/[0-9]/.test(character)) {
           var input = elem.val();
@@ -367,10 +368,11 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
 
       elem.bind('keydown', function handleKeyPress(event) {
         console.log('%c keydown', 'color:#0b0', event);
+        console.log('%c elem', 'color:#0b0', elem.val());
         var timestamp = new Date();
         scope.keydown = [String.fromCharCode(event.which), timestamp.getTime()];
         scope.log.unshift('-');
-        scope.log.unshift('keydown: ' + String.fromCharCode(event.which) + ' ' + timestamp.getTime());
+        scope.log.unshift('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp.getTime());
         if (event.which === 8) {
           // Backspace
           var input = elem.val();
