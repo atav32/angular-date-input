@@ -403,9 +403,11 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         if (viewValue === undefined) {
           viewValue = '';
         }
+        scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp.getTime());
         viewValue = scope.formatView(viewValue);
 
         scope.$evalAsync(function updateDom() {
+          scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp.getTime());
           elem.val(viewValue);
         });
 
@@ -415,6 +417,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       // Validate the input at every change
       ngModelCtrl.$parsers.push(function inputValidator(viewValue) {
         var valid = scope.isValidDate(viewValue);
+        scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp.getTime());
 
         // If the user hasn't done anything yet, don't show them a red warning
         if ('required' in attrs && viewValue.length === 0 && ngModelCtrl.$pristine) {
@@ -437,6 +440,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       // Parses the date view value (from the input box) into the view format provided.
       ngModelCtrl.$parsers.push(function updateModel(viewValue) {
         var modelValue = viewValue;
+        scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp.getTime());
         if (ngModelCtrl.$valid) {
           modelValue = scope.formatModel(viewValue);
         } else {
@@ -448,7 +452,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
 
       // Place the cursor before the first placeholder or at the end of the input
       ngModelCtrl.$parsers.push(function updateCursor(modelValue) {
+        scope.log.unshift('updateCursor: ' + viewValue + ' ' + timestamp.getTime());
         scope.$$postDigest(function () {
+          scope.log.unshift('updateCursor postDigest: ' + viewValue + ' ' + timestamp.getTime());
           var firstPlaceHolder = elem.val().search(/[mdy]/);
           if (firstPlaceHolder >= 0) {
             cursor.setPosition(elem, firstPlaceHolder);
