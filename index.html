@@ -13,7 +13,7 @@
     <div>Keydown: <span ng-bind="keydown"></span></div>
     <br>
     <div>Log:
-      <div ng-repeat="line in log">
+      <div ng-repeat="line in log track by $index">
         <span ng-bind="line"></span>
       </div>
     </div>

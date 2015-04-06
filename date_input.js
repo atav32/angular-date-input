@@ -369,6 +369,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         console.log('%c keydown', 'color:#0b0', event);
         var timestamp = new Date();
         scope.keydown = [String.fromCharCode(event.which), timestamp.getTime()];
+        scope.log.unshift('-');
         scope.log.unshift('keydown: ' + String.fromCharCode(event.which) + ' ' + timestamp.getTime());
         if (event.which === 8) {
           // Backspace
@@ -403,10 +404,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         if (viewValue === undefined) {
           viewValue = '';
         }
+        var timestamp = new Date();
         scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp.getTime());
         viewValue = scope.formatView(viewValue);
 
         scope.$evalAsync(function updateDom() {
+          var timestamp = new Date();
           scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp.getTime());
           elem.val(viewValue);
         });
@@ -417,6 +420,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       // Validate the input at every change
       ngModelCtrl.$parsers.push(function inputValidator(viewValue) {
         var valid = scope.isValidDate(viewValue);
+        var timestamp = new Date();
         scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp.getTime());
 
         // If the user hasn't done anything yet, don't show them a red warning
@@ -440,6 +444,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       // Parses the date view value (from the input box) into the view format provided.
       ngModelCtrl.$parsers.push(function updateModel(viewValue) {
         var modelValue = viewValue;
+        var timestamp = new Date();
         scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp.getTime());
         if (ngModelCtrl.$valid) {
           modelValue = scope.formatModel(viewValue);
@@ -452,9 +457,11 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
 
       // Place the cursor before the first placeholder or at the end of the input
       ngModelCtrl.$parsers.push(function updateCursor(modelValue) {
-        scope.log.unshift('updateCursor: ' + viewValue + ' ' + timestamp.getTime());
+        var timestamp = new Date();
+        scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp.getTime());
         scope.$$postDigest(function () {
-          scope.log.unshift('updateCursor postDigest: ' + viewValue + ' ' + timestamp.getTime());
+          var timestamp = new Date();
+          scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp.getTime());
           var firstPlaceHolder = elem.val().search(/[mdy]/);
           if (firstPlaceHolder >= 0) {
             cursor.setPosition(elem, firstPlaceHolder);
