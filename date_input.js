@@ -344,10 +344,11 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       elem.bind('keypress', function handleKeyPress(event) {
         // move the cursor if the user enters a number by slicing next character
         var character = String.fromCharCode(event.which);
-        var timestamp = new Date();
-        scope.keypress = [character, timestamp.getTime()];
-        scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp.getTime() + '\n\n');
-        console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp.getTime() + '\n\n');
+        var now = new Date();
+        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+        scope.keypress = [character, timestamp];
+        scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp + '\n\n');
+        console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp);
         
         if (/[0-9]/.test(character)) {
           var input = elem.val();
@@ -366,11 +367,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       });
 
       elem.bind('keydown', function handleKeyPress(event) {
-        var timestamp = new Date();
-        scope.keydown = [String.fromCharCode(event.which), timestamp.getTime()];
+        var now = new Date();
+        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+        scope.keydown = [String.fromCharCode(event.which), timestamp];
         scope.log.unshift('-');
-        scope.log.unshift('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp.getTime());
-        console.log('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp.getTime());
+        scope.log.unshift('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp);
+        console.log('\n\nkeydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp);
         if (event.which === 8) {
           // Backspace
           var input = elem.val();
@@ -404,15 +406,17 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         if (viewValue === undefined) {
           viewValue = '';
         }
-        var timestamp = new Date();
-        scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp.getTime());
-        console.log('updateView: ' + viewValue + ' ' + timestamp.getTime());
+        var now = new Date();
+        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+        scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp);
+        console.log('updateView: ' + viewValue + ' ' + timestamp);
         viewValue = scope.formatView(viewValue);
 
         scope.$evalAsync(function updateDom() {
-          var timestamp = new Date();
-          scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp.getTime());
-          console.log('updateView async: ' + viewValue + ' ' + timestamp.getTime());
+          var now = new Date();
+          var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+          scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp);
+          console.log('updateView async: ' + viewValue + ' ' + timestamp);
           elem.val(viewValue);
         });
 
@@ -422,9 +426,10 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       // Validate the input at every change
       ngModelCtrl.$parsers.push(function inputValidator(viewValue) {
         var valid = scope.isValidDate(viewValue);
-        var timestamp = new Date();
-        scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp.getTime());
-        console.log('inputValidator: ' + viewValue + ' ' + timestamp.getTime());
+        var now = new Date();
+        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+        scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp);
+        console.log('inputValidator: ' + viewValue + ' ' + timestamp);
 
         // If the user hasn't done anything yet, don't show them a red warning
         if ('required' in attrs && viewValue.length === 0 && ngModelCtrl.$pristine) {
@@ -447,9 +452,10 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       // Parses the date view value (from the input box) into the view format provided.
       ngModelCtrl.$parsers.push(function updateModel(viewValue) {
         var modelValue = viewValue;
-        var timestamp = new Date();
-        scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp.getTime());
-        console.log('updateModel: ' + viewValue + ' ' + timestamp.getTime());
+        var now = new Date();
+        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+        scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp);
+        console.log('updateModel: ' + viewValue + ' ' + timestamp);
         if (ngModelCtrl.$valid) {
           modelValue = scope.formatModel(viewValue);
         } else {
@@ -461,13 +467,15 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
 
       // Place the cursor before the first placeholder or at the end of the input
       ngModelCtrl.$parsers.push(function updateCursor(modelValue) {
-        var timestamp = new Date();
-        scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp.getTime());
-        console.log('updateCursor: ' + modelValue + ' ' + timestamp.getTime());
+        var now = new Date();
+        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+        scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp);
+        console.log('updateCursor: ' + modelValue + ' ' + timestamp);
         scope.$$postDigest(function () {
-          var timestamp = new Date();
-          scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp.getTime());
-          console.log('updateCursor postDigest: ' + modelValue + ' ' + timestamp.getTime());
+          var now = new Date();
+          var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+          scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp);
+          console.log('updateCursor postDigest: ' + modelValue + ' ' + timestamp);
           var firstPlaceHolder = elem.val().search(/[mdy]/);
           if (firstPlaceHolder >= 0) {
             cursor.setPosition(elem, firstPlaceHolder);
