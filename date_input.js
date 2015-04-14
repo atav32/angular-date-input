@@ -360,6 +360,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
             scope.$evalAsync(function updateViewValue() {
               ngModelCtrl.$pristine = false;
               ngModelCtrl.$setViewValue(input);
+              console.log('  keypress async:  ' + input + ' ' + elem.val() + ' ' + timestamp);
               ngModelCtrl.$pristine = true;
             });
           }
