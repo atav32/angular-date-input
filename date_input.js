@@ -346,7 +346,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var character = String.fromCharCode(event.which);
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.keypress = [character, timestamp];
+        scope.keypress = character + ' ' + timestamp;
         scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp + '\n\n');
         console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp);
         
@@ -369,7 +369,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       elem.bind('keydown', function handleKeyPress(event) {
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.keydown = [String.fromCharCode(event.which), timestamp];
+        scope.keydown = String.fromCharCode(event.which) + ' ' + timestamp;
         scope.log.unshift('-');
         scope.log.unshift('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp);
         console.log('\n\nkeydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp);
