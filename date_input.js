@@ -345,10 +345,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         // move the cursor if the user enters a number by slicing next character
         var character = String.fromCharCode(event.which);
         var timestamp = new Date();
-        console.log('%c keypress', 'color:#0b0', character, event, '\n\n');
-        console.log('%c elem', 'color:#0b0', elem.val());
         scope.keypress = [character, timestamp.getTime()];
         scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp.getTime() + '\n\n');
+        console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp.getTime() + '\n\n');
         
         if (/[0-9]/.test(character)) {
           var input = elem.val();
@@ -367,12 +366,11 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       });
 
       elem.bind('keydown', function handleKeyPress(event) {
-        console.log('%c keydown', 'color:#0b0', event);
-        console.log('%c elem', 'color:#0b0', elem.val());
         var timestamp = new Date();
         scope.keydown = [String.fromCharCode(event.which), timestamp.getTime()];
         scope.log.unshift('-');
         scope.log.unshift('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp.getTime());
+        console.log('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp.getTime());
         if (event.which === 8) {
           // Backspace
           var input = elem.val();
@@ -408,11 +406,13 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         }
         var timestamp = new Date();
         scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp.getTime());
+        console.log('updateView: ' + viewValue + ' ' + timestamp.getTime());
         viewValue = scope.formatView(viewValue);
 
         scope.$evalAsync(function updateDom() {
           var timestamp = new Date();
           scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp.getTime());
+          console.log('updateView async: ' + viewValue + ' ' + timestamp.getTime());
           elem.val(viewValue);
         });
 
@@ -424,6 +424,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var valid = scope.isValidDate(viewValue);
         var timestamp = new Date();
         scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp.getTime());
+        console.log('inputValidator: ' + viewValue + ' ' + timestamp.getTime());
 
         // If the user hasn't done anything yet, don't show them a red warning
         if ('required' in attrs && viewValue.length === 0 && ngModelCtrl.$pristine) {
@@ -448,6 +449,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var modelValue = viewValue;
         var timestamp = new Date();
         scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp.getTime());
+        console.log('updateModel: ' + viewValue + ' ' + timestamp.getTime());
         if (ngModelCtrl.$valid) {
           modelValue = scope.formatModel(viewValue);
         } else {
@@ -461,9 +463,11 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       ngModelCtrl.$parsers.push(function updateCursor(modelValue) {
         var timestamp = new Date();
         scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp.getTime());
+        console.log('updateCursor: ' + modelValue + ' ' + timestamp.getTime());
         scope.$$postDigest(function () {
           var timestamp = new Date();
           scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp.getTime());
+          console.log('updateCursor postDigest: ' + modelValue + ' ' + timestamp.getTime());
           var firstPlaceHolder = elem.val().search(/[mdy]/);
           if (firstPlaceHolder >= 0) {
             cursor.setPosition(elem, firstPlaceHolder);
