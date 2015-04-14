@@ -351,6 +351,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp);
         
         if (/[0-9]/.test(character)) {
+          ngModelCtrl.$commitViewValue();
           var input = elem.val();
           var cursorPosition = cursor.getPosition(elem);
           if (input[cursorPosition]) {
