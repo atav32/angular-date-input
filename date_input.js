@@ -409,14 +409,17 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp);
-        console.log('updateView: ' + viewValue + ' ' + timestamp);
+        console.log('1. updateView: ' + viewValue + ' ' + timestamp);
         viewValue = scope.formatView(viewValue);
+        now = new Date();
+        timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+        console.log('1. updateView formatted: ' + viewValue + ' ' + timestamp);
 
         scope.$evalAsync(function updateDom() {
           var now = new Date();
           var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
           scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp);
-          console.log('updateView async: ' + viewValue + ' ' + timestamp);
+          console.log('  1. updateView async: ' + viewValue + ' ' + timestamp);
           elem.val(viewValue);
         });
 
@@ -429,7 +432,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp);
-        console.log('inputValidator: ' + viewValue + ' ' + timestamp);
+        console.log('2. inputValidator: ' + viewValue + ' ' + timestamp);
 
         // If the user hasn't done anything yet, don't show them a red warning
         if ('required' in attrs && viewValue.length === 0 && ngModelCtrl.$pristine) {
@@ -455,7 +458,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp);
-        console.log('updateModel: ' + viewValue + ' ' + timestamp);
+        console.log('3. updateModel: ' + viewValue + ' ' + timestamp);
         if (ngModelCtrl.$valid) {
           modelValue = scope.formatModel(viewValue);
         } else {
@@ -470,12 +473,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp);
-        console.log('updateCursor: ' + modelValue + ' ' + timestamp);
+        console.log('4. updateCursor: ' + modelValue + ' ' + timestamp);
         scope.$$postDigest(function () {
           var now = new Date();
           var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
           scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp);
-          console.log('updateCursor postDigest: ' + modelValue + ' ' + timestamp);
+          console.log('  4. updateCursor postDigest: ' + modelValue + ' ' + timestamp);
           var firstPlaceHolder = elem.val().search(/[mdy]/);
           if (firstPlaceHolder >= 0) {
             cursor.setPosition(elem, firstPlaceHolder);
