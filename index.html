@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="./date_input.css">
   </head>
   <body ng-controller="DateInputCtrl">
-    <input date-input ng-model="date" ng-model-options="{debounce: 10}"
+    <input date-input ng-model="date" ng-model-options="{debounce: 20}"
            keypress="keypress" keydown="keydown" log="log"
            class="date-input" type="text" autofocus>
     <div>Date: <span ng-bind="date"></span></div>
