@@ -5,9 +5,11 @@
     <link rel="stylesheet" href="./date_input.css">
   </head>
   <body ng-controller="DateInputCtrl">
-    <input date-input ng-model="date" ng-model-options="{debounce: 20}"
-           keypress="keypress" keydown="keydown" log="log"
-           class="date-input" type="tel" autofocus>
+    <form name="inputForm">
+      <input date-input ng-model="date" ng-model-options="{debounce: 20}"
+             keypress="keypress" keydown="keydown" log="log"
+             name="date" class="date-input" type="tel" autofocus>
+    </form>
     <div>Date: <span ng-bind="date"></span></div>
     <div>Keypress: <span ng-bind="keypress"></span></div>
     <div>Keydown: <span ng-bind="keydown"></span></div>
