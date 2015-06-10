@@ -405,7 +405,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        */
       ngModelCtrl.$parsers.push(function updateView(viewValue) {
         if (viewValue === undefined) {
-          viewValue = '';
+          viewValue = ' ';
         }
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
@@ -463,7 +463,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         if (ngModelCtrl.$valid) {
           modelValue = scope.formatModel(viewValue);
         } else {
-          modelValue = '';
+          modelValue = ' ';
         }
         scope.resetDate();
         return modelValue;
