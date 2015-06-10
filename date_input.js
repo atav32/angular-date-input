@@ -463,7 +463,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         if (ngModelCtrl.$valid) {
           modelValue = scope.formatModel(viewValue);
         } else {
-          modelValue = undefined;
+          modelValue = '';
         }
         scope.resetDate();
         return modelValue;
@@ -487,6 +487,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
             cursor.setPosition(elem, elem.val().length);
           }
         });
+        if (modelValue === '') {
+          modelValue = undefined;
+        }
         return modelValue;
       });
 
