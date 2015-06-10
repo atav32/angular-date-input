@@ -7,6 +7,7 @@
   <body ng-controller="DateInputCtrl">
     <input date-input ng-model="date" ng-model-options="{debounce: 20}"
            keypress="keypress" keydown="keydown" log="log"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
            class="date-input" type="tel" autofocus>
     <div>Date: <span ng-bind="date"></span></div>
     <div>Keypress: <span ng-bind="keypress"></span></div>
