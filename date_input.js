@@ -6,7 +6,7 @@ demoApp.controller('DateInputCtrl', function($scope) {
   $scope.log;
 });
 
-demoApp.directive('dateInput', ['cursor', function (cursor) {
+demoApp.directive('dateInput', ['cursor', function(cursor) {
   return {
     require: 'ngModel',
     scope: {
@@ -17,7 +17,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       keydown: '=',
       log: '='
     },
-    controller: function ($scope, $attrs) {
+    controller: function($scope, $attrs) {
 
       $scope.date = {
         year: 'yyyy',
@@ -34,6 +34,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       $scope._modelFormat = $scope.modelFormat || $scope.defaultModelFormat;
       $scope._viewFormat = $scope.viewFormat || $scope.defaultViewFormat;
 
+      $scope._valid = {
+        real: true,
+        min: true,
+        max: true
+      };
+
       var leftoverDatePart = '';
 
       /**
@@ -42,7 +48,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * @param date String, a date string in modelFormat (maybe)
        * @return String, date in viewFormat; if cannot be parsed by any known format viewFormat
        */
-      $scope.parseModel = function (date) {
+      $scope.parseModel = function(date) {
         var datePart, modelFormatPart, matches;
         var dateParts = date.split(/\D+/);
         var modelFormats = ['yyyy/mm/dd', 'mm/dd/yyyy', 'yyyy/mm', 'mm/yyyy', 'yyyy'];
@@ -81,7 +87,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * @param date String, a date string in viewFormat
        * @return String, a date string also in viewFormat, coerced and improved.
        */
-      $scope.formatView = function (date) {
+      $scope.formatView = function(date) {
         var datePart, formatPart;
         var dateParts = date.replace(/[a-z]+/gi, '').split(/\W+/);
         var delimiters = dateParts.length;
@@ -116,7 +122,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * Formats the internal scope.date into a formatted data string in modelFormat
        * @return String, date in modelFormat
        */
-      $scope.formatModel = function () {
+      $scope.formatModel = function() {
         // detecting lack of specification of model format.
         var modelFormat = $scope.modelFormat;
         // choose 'yyyy/mm/dd', 'yyyy/mm', 'yyyy' when the modelFormat is unspecified
@@ -127,7 +133,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         return formatFromScopeDate(modelFormat);
       };
 
-      $scope.resetDate = function () {
+      $scope.resetDate = function() {
         $scope.date = {
           year: 'yyyy',
           month: 'mm',
@@ -135,7 +141,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         };
       };
 
-      var setScopeDatePart = function (datePart, formatPart) {
+      var setScopeDatePart = function(datePart, formatPart) {
         if (formatPart === 'mm') {
           datePart = formatMonth(datePart);
           $scope.date.month = datePart;
@@ -153,7 +159,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * @param format
        * @returns String, date string form internal scope.state in the given format.
        */
-      var formatFromScopeDate = function (format) {
+      var formatFromScopeDate = function(format) {
         var output = format;
         var formatParts = format.split(/\W+/);
         for (var i = 0, len = formatParts.length; i < len; i++) {
@@ -173,16 +179,19 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * Formats the month to automatically promote 1-digit months to 2-digits
        * @month a month string
        */
-      var formatMonth = function (month) {
-        if (month.length > 2) {
+      var formatMonth = function(month) {
+        if (month.length > 3) { // date part is probably a year
           leftoverDatePart = month;
           return 'mm';
-        } else if (month.length === 2) {
-          if (month > 12) {
+        } else if (month.length === 3) { // date part is probably a human typo
+          leftoverDatePart = month.slice(2);
+          return month.slice(0, 2);
+        } else if (month.length === 2) { // date part is actually a month
+          if (month > 12) { // assume invalid months are multiple date parts
             leftoverDatePart = month.slice(1, 2);
             return '0' + month.slice(0, 1);
           }
-        } else if (month.length === 1 && month > 1) {
+        } else if (month.length === 1 && month > 1) { // change '3' to '03'
           return '0' + month;
         }
         return month + 'mm'.slice(0, 2 - month.length);
@@ -192,10 +201,13 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * Formats the day to automatically promote 1-digit days to 2-digits
        * @day a day string
        */
-      var formatDay = function (day) {
-        if (day.length > 2) {
+      var formatDay = function(day) {
+        if (day.length > 3) {
           leftoverDatePart = day;
           return 'dd';
+        } else if (day.length === 3) {
+          leftoverDatePart = day.slice(2);
+          return day.slice(0, 2);
         } else if (day.length === 2) {
           if (day > 31) {
             leftoverDatePart = day.slice(1, 2);
@@ -211,7 +223,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * Formats the year to turn 2-digit years into the nearest, valid 4-digit year
        * @year a year string
        */
-      var formatYear = function (year) {
+      var formatYear = function(year) {
         if (year.length === 2 && year !== '19' && year !== '20') {
           var month = $scope.date.month.replace(/[mdy]+/gi, '')-1 || 0;
           var day = $scope.date.day.replace(/[mdy]+/gi, '') || 1;
@@ -230,18 +242,24 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
             pastValid = true;
           }
           if (futureValid && pastValid || (!futureValid && !pastValid)) {
+            // if both autocompleted years are valid, then pick the closer one
             year = getCloserYear(futureYear, pastYear);
           }
         }
         return year + 'yyyy'.slice(0, 4 - year.length);
       };
 
-      var getCloserYear = function (futureYear, pastYear) {
+      var getCloserYear = function(futureYear, pastYear) {
         var thisYear = new Date().getFullYear();
         return Math.abs(futureYear - thisYear) < Math.abs(pastYear - thisYear) ? futureYear : pastYear;
       };
 
-      $scope.isValidDate = function (date) {
+      /**
+       * Check that the inputted date is real by converting it to a Javascript date object
+       * and making sure the converted month, day and year are each the same as the input
+       * For example: 01/32/2015 becomes 02/01/2015, which means it's invalid
+       */
+      $scope.isValidDate = function(date) {
         var valid = false;
         if (!date || date.match(/[mdy]/)) {
           valid = false;
@@ -264,14 +282,14 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * checks that a date input is the same length as the date view format
        * @date a date string
        */
-      var isCompleteDate = function (date) {
+      var isCompleteDate = function(date) {
         var dateLength = date.replace(/\D+/g, '').length;
         var formatLength = $scope._viewFormat.replace(/[^mdy]+/gi, '').length;
         return dateLength === formatLength;
       };
 
-      var isRealDate = function (date) {
-        return (!isNaN(date.getTime()) &&
+      var isRealDate = function(date) {
+        var real = (!isNaN(date.getTime()) &&
                 (date.getDate() == $scope.date.day ||
                                    !$scope.date.day.replace(/d+/gi, '') ||
                                    $scope._viewFormat.indexOf('dd') < 0) &&
@@ -279,6 +297,8 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
                                         !$scope.date.month.replace(/m+/gi, '') ||
                                         $scope._viewFormat.indexOf('mm') < 0) &&
                 date.getFullYear() == $scope.date.year);
+        $scope._valid.real = real;
+        return real;
       };
 
       /**
@@ -286,16 +306,20 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
        * @param String, a date
        * @returns Boolean, whether the date is within the given bounds
        */
-      var isWithinDateRange = function (date) {
+      var isWithinDateRange = function(date) {
         var valid = false;
         var now = new Date();
 
         if ('past' in $attrs) {
           valid = date < now;
+          $scope._valid.max = valid;
         } else if ('future' in $attrs) {
           valid = date >= now;
+          $scope._valid.min = valid;
         } else {
           valid = true;
+          $scope._valid.max = true;
+          $scope._valid.min = true;
         }
 
         if (valid && 'minDate' in $attrs) {
@@ -304,6 +328,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
           } else {
             valid = date >= new Date($attrs.minDate);
           }
+          $scope._valid.min = valid;
         }
         if (valid && 'maxDate' in $attrs) {
           if (/[mdy]/.test($attrs.maxDate)) {
@@ -311,11 +336,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
           } else {
             valid = date <= new Date($attrs.maxDate);
           }
+          $scope._valid.max = valid;
         }
         return valid;
       };
 
-      var getRelativeDate = function (relativeDifference) {
+      var getRelativeDate = function(relativeDifference) {
         var relativeDate = new Date();
         var number = parseInt(relativeDifference.match(/\d+/)[0]);
 
@@ -333,11 +359,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       };
     },
 
-    link: function (scope, elem, attrs, ngModelCtrl) {
+    link: function(scope, elem, attrs, ngModelCtrl) {
 
       var viewFormat = attrs.viewFormat || 'mm/dd/yyyy';
       var fieldName = elem.attr('name');
-      elem.attr('placeholder', viewFormat);
+      var modelValid = false;
+      elem.attr('placeholder', attrs.placeholder || viewFormat);
       elem.attr('maxlength', viewFormat.length);
       scope.log = [];
 
@@ -395,6 +422,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
           ngModelCtrl.$pristine = false;
           ngModelCtrl.$setViewValue(viewValue);
           ngModelCtrl.$pristine = true;
+          var valid = scope.isValidDate(viewValue);
+          // Adds a custom asyncValid property that will persist across ng-repeat.
+          ngModelCtrl.$valid = ngModelCtrl.asyncValid = valid;
         }
         return viewValue;
       });
@@ -406,6 +436,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       ngModelCtrl.$parsers.push(function updateView(viewValue) {
         if (viewValue === undefined) {
           viewValue = '';
+        } else {
+          viewValue = scope.formatView(viewValue);
+          elem.val(viewValue);
         }
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
@@ -416,20 +449,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         console.log('1. updateView formatted: ' + viewValue + ' ' + timestamp);
 
-        scope.$evalAsync(function updateDom() {
-          var now = new Date();
-          var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-          scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp);
-          console.log('  1. updateView async: ' + viewValue + ' ' + timestamp);
-          elem.val(viewValue);
-        });
-
         return viewValue;
       });
 
       // Validate the input at every change
       ngModelCtrl.$parsers.push(function inputValidator(viewValue) {
-        var valid = scope.isValidDate(viewValue);
+        modelValid = scope.isValidDate(viewValue);
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp);
@@ -437,15 +462,21 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
 
         // If the user hasn't done anything yet, don't show them a red warning
         if ('required' in attrs && viewValue.length === 0 && ngModelCtrl.$pristine) {
-          valid = true;
+          modelValid = true;
         }
-        ngModelCtrl.$setValidity(fieldName, valid);
-        ngModelCtrl.$valid = valid;
-        applyErrorClass(valid);
+        applyScopeValid(modelValid);
+        //applyErrorClass(modelValid);
         return viewValue;
       });
 
-      var applyErrorClass = function (valid) {
+      var applyScopeValid = function(valid) {
+        angular.forEach(scope._valid, function(value, key) {
+          ngModelCtrl.$setValidity(key, value);
+        });
+        ngModelCtrl.$setValidity(fieldName, valid);
+      };
+
+      var applyErrorClass = function(valid) {
         if (valid) {
           elem.removeClass('has-error');
         } else {
@@ -460,12 +491,11 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp);
         console.log('3. updateModel: ' + viewValue + ' ' + timestamp);
-        if (ngModelCtrl.$valid) {
+        if (modelValid) {
           modelValue = scope.formatModel(viewValue);
         } else {
           modelValue = '';
         }
-        scope.resetDate();
         return modelValue;
       });
 
@@ -475,7 +505,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp);
         console.log('4. updateCursor: ' + modelValue + ' ' + timestamp);
-        scope.$$postDigest(function () {
+        scope.$evalAsync(function() {
           var now = new Date();
           var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
           scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp);
@@ -486,6 +516,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
           } else {
             cursor.setPosition(elem, elem.val().length);
           }
+          scope.resetDate();
         });
         return modelValue;
       });
