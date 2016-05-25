@@ -496,6 +496,10 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         });
       } else {
         console.log('%c android', 'color:#0b0');
+        elem.bind('keydown', function validate() {
+          var valid = scope.isValidDate(elem.value);
+          console.log('%c value', 'color:#0b0', elem.value, valid);
+        });
       }
     }
   };
