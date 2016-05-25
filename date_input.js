@@ -349,7 +349,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         scope.keypress = character + ' ' + timestamp;
         scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp + '\n\n');
         console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp);
-        
+
         if (/[0-9]/.test(character)) {
           var input = elem.val();
           var cursorPosition = cursor.getPosition(elem);
@@ -372,8 +372,10 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.keydown = String.fromCharCode(event.which) + ' ' + timestamp;
         scope.log.unshift('-');
-        scope.log.unshift('keydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp);
-        console.log('\n\nkeydown:  ' + String.fromCharCode(event.which) + ' ' + elem.val() + ' ' + timestamp);
+        scope.log.unshift('keydown:  ' + event.which + ' ' + String.fromCharCode(event.which) + ' ' +
+                          elem.val() + ' ' + timestamp);
+        console.log('\n\nkeydown:  ', event.which, String.fromCharCode(event.which) + ' ' +
+                    elem.val() + ' ' + timestamp);
         if (event.which === 8) {
           // Backspace
           var input = elem.val();
