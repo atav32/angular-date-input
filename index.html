@@ -8,7 +8,7 @@
     <form name="inputForm">
       <input date-input ng-model="date" ng-model-options="{debounce: 20}"
              keypress="keypress" keydown="keydown" log="log" required min-date="-125y"
-             name="date" class="date-input" type="tel" autofocus>
+             name="date" class="date-input" type="date" autofocus view-format="yyyy-mm-dd">
     </form>
     <div>Date: <span ng-bind="date"></span></div>
     <div>Keypress: <span ng-bind="keypress"></span></div>

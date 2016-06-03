@@ -7,6 +7,7 @@ demoApp.controller('DateInputCtrl', function($scope) {
 });
 
 demoApp.directive('dateInput', ['cursor', function (cursor) {
+  var isAndroid = /Android/i.test($window.navigator.userAgent);
   return {
     require: 'ngModel',
     scope: {
@@ -249,9 +250,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
           var viewFormat = $scope._viewFormat;
           var now = new Date();
           var jsDate = new Date(
-              viewFormat.indexOf('yyyy') > -1 ? $scope.date.year.replace(/y+/gi, '') : now.getFullYear(),
-              viewFormat.indexOf('mm') > -1 ? ($scope.date.month.replace(/m+/gi, '') - 1 || 0) : 0,
-              viewFormat.indexOf('dd') > -1 ? ($scope.date.day.replace(/d+/gi, '') || 1) : 1
+            viewFormat.indexOf('yyyy') > -1 ? $scope.date.year.replace(/y+/gi, '') : now.getFullYear(),
+            viewFormat.indexOf('mm') > -1 ? ($scope.date.month.replace(/m+/gi, '') - 1 || 0) : 0,
+            viewFormat.indexOf('dd') > -1 ? ($scope.date.day.replace(/d+/gi, '') || 1) : 1
           );
           if (isRealDate(jsDate) && isWithinDateRange(jsDate)) {
             valid = true;
@@ -273,12 +274,12 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       var isRealDate = function (date) {
         return (!isNaN(date.getTime()) &&
                 (date.getDate() == $scope.date.day ||
-                                   !$scope.date.day.replace(/d+/gi, '') ||
-                                   $scope._viewFormat.indexOf('dd') < 0) &&
-                (date.getMonth() + 1 == $scope.date.month ||
-                                        !$scope.date.month.replace(/m+/gi, '') ||
-                                        $scope._viewFormat.indexOf('mm') < 0) &&
-                date.getFullYear() == $scope.date.year);
+                 !$scope.date.day.replace(/d+/gi, '') ||
+                   $scope._viewFormat.indexOf('dd') < 0) &&
+                     (date.getMonth() + 1 == $scope.date.month ||
+                      !$scope.date.month.replace(/m+/gi, '') ||
+                        $scope._viewFormat.indexOf('mm') < 0) &&
+                          date.getFullYear() == $scope.date.year);
       };
 
       /**
@@ -341,167 +342,170 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       elem.attr('maxlength', viewFormat.length);
       scope.log = [];
 
-      elem.bind('keypress', function handleKeyPress(event) {
-        console.log('\n\n%c ', 'color:#0b0');
-        if (event.which === 229) {
-          console.log('%c keyboard: ', 'color:#0b0', event);
-        }
-
-        // move the cursor if the user enters a number by slicing next character
-        var character = String.fromCharCode(event.which);
-        var now = new Date();
-        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.keypress = character + ' ' + timestamp;
-        scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp + '\n\n');
-        console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp);
-
-        if (/[0-9]/.test(character)) {
-          var input = elem.val();
-          var cursorPosition = cursor.getPosition(elem);
-          if (input[cursorPosition]) {
-            var selection = cursor.getSelection(elem);
-            input = input.slice(0, cursorPosition) + character + input.slice(selection.end);
-
-            scope.$evalAsync(function updateViewValue() {
-              ngModelCtrl.$pristine = false;
-              ngModelCtrl.$setViewValue(input);
-              console.log('  keypress async:  ' + input + ' ' + elem.val() + ' ' + timestamp);
-              ngModelCtrl.$pristine = true;
-            });
+      if (isAndroid) {
+      } else {
+        elem.bind('keypress', function handleKeyPress(event) {
+          console.log('\n\n%c ', 'color:#0b0');
+          if (event.which === 229) {
+            console.log('%c keyboard: ', 'color:#0b0', event);
           }
-        }
-      });
 
-      elem.bind('keydown', function handleKeyPress(event) {
-        console.log('\n\n%c ', 'color:#0b0');
-        if (event.which === 229) {
-          console.log('%c keydown: ', 'color:#0b0', event);
-        }
-
-        var now = new Date();
-        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.keydown = String.fromCharCode(event.which) + ' ' + timestamp;
-        scope.log.unshift('-');
-        scope.log.unshift('keydown:  ' + event.which + ' ' + String.fromCharCode(event.which) + ' ' +
-                          elem.val() + ' ' + timestamp);
-        console.log('keydown:  ', event.which, String.fromCharCode(event.which) + ' ' +
-                    elem.val() + ' ' + timestamp);
-        if (event.which === 8) {
-          // Backspace
-          var input = elem.val();
-          var cursorPosition = cursor.getPosition(elem);
-          if (input[cursorPosition - 1] === '/') {
-            cursor.setPosition(elem, --cursorPosition);
-          }
-        }
-      });
-
-      /**
-       * registers the parseModel method for the initialization of the scope from the DOM.
-       * @param modelValue String, a date string assumed to be in modelFormat
-       */
-      ngModelCtrl.$formatters.unshift(function initialView(modelValue) {
-        var viewValue = modelValue;
-        if (!!modelValue) {
-          viewValue = scope.parseModel(modelValue);
-          ngModelCtrl.$pristine = false;
-          ngModelCtrl.$setViewValue(viewValue);
-          ngModelCtrl.$pristine = true;
-        }
-        return viewValue;
-      });
-
-      /**
-       * parses the date view value (from the input box) into the view format provided.
-       * @viewValue a date string
-       */
-      ngModelCtrl.$parsers.push(function updateView(viewValue) {
-        if (viewValue === undefined) {
-          viewValue = '';
-        }
-        var now = new Date();
-        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp);
-        console.log('1. updateView: ' + viewValue + ' ' + timestamp);
-        viewValue = scope.formatView(viewValue);
-        now = new Date();
-        timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        console.log('1. updateView formatted: ' + viewValue + ' ' + timestamp);
-
-        scope.$evalAsync(function updateDom() {
+          // move the cursor if the user enters a number by slicing next character
+          var character = String.fromCharCode(event.which);
           var now = new Date();
           var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-          scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp);
-          console.log('  1. updateView async: ' + viewValue + ' ' + timestamp);
-          elem.val(viewValue);
+          scope.keypress = character + ' ' + timestamp;
+          scope.log.unshift('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp + '\n\n');
+          console.log('keypress:  ' + character + ' ' + elem.val() + ' ' + timestamp);
+
+          if (/[0-9]/.test(character)) {
+            var input = elem.val();
+            var cursorPosition = cursor.getPosition(elem);
+            if (input[cursorPosition]) {
+              var selection = cursor.getSelection(elem);
+              input = input.slice(0, cursorPosition) + character + input.slice(selection.end);
+
+              scope.$evalAsync(function updateViewValue() {
+                ngModelCtrl.$pristine = false;
+                ngModelCtrl.$setViewValue(input);
+                console.log('  keypress async:  ' + input + ' ' + elem.val() + ' ' + timestamp);
+                ngModelCtrl.$pristine = true;
+              });
+            }
+          }
         });
 
-        return viewValue;
-      });
+        elem.bind('keydown', function handleKeyPress(event) {
+          console.log('\n\n%c ', 'color:#0b0');
+          if (event.which === 229) {
+            console.log('%c keydown: ', 'color:#0b0', event);
+          }
 
-      // Validate the input at every change
-      ngModelCtrl.$parsers.push(function inputValidator(viewValue) {
-        var valid = scope.isValidDate(viewValue);
-        var now = new Date();
-        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp);
-        console.log('2. inputValidator: ' + viewValue + ' ' + timestamp);
-
-        // If the user hasn't done anything yet, don't show them a red warning
-        if ('required' in attrs && viewValue.length === 0 && ngModelCtrl.$pristine) {
-          valid = true;
-        }
-        ngModelCtrl.$setValidity(fieldName, valid);
-        ngModelCtrl.$valid = valid;
-        applyErrorClass(valid);
-        return viewValue;
-      });
-
-      var applyErrorClass = function (valid) {
-        if (valid) {
-          elem.removeClass('has-error');
-        } else {
-          elem.addClass('has-error');
-        }
-      };
-
-      // Parses the date view value (from the input box) into the view format provided.
-      ngModelCtrl.$parsers.push(function updateModel(viewValue) {
-        var modelValue = viewValue;
-        var now = new Date();
-        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp);
-        console.log('3. updateModel: ' + viewValue + ' ' + timestamp);
-        if (ngModelCtrl.$valid) {
-          modelValue = scope.formatModel(viewValue);
-        } else {
-          modelValue = '';
-        }
-        scope.resetDate();
-        return modelValue;
-      });
-
-      // Place the cursor before the first placeholder or at the end of the input
-      ngModelCtrl.$parsers.push(function updateCursor(modelValue) {
-        var now = new Date();
-        var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-        scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp);
-        console.log('4. updateCursor: ' + modelValue + ' ' + timestamp);
-        scope.$$postDigest(function () {
           var now = new Date();
           var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
-          scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp);
-          console.log('  4. updateCursor postDigest: ' + modelValue + ' ' + timestamp);
-          var firstPlaceHolder = elem.val().search(/[mdy]/);
-          if (firstPlaceHolder >= 0) {
-            cursor.setPosition(elem, firstPlaceHolder);
+          scope.keydown = String.fromCharCode(event.which) + ' ' + timestamp;
+          scope.log.unshift('-');
+          scope.log.unshift('keydown:  ' + event.which + ' ' + String.fromCharCode(event.which) + ' ' +
+                            elem.val() + ' ' + timestamp);
+                            console.log('keydown:  ', event.which, String.fromCharCode(event.which) + ' ' +
+                                        elem.val() + ' ' + timestamp);
+                                        if (event.which === 8) {
+                                          // Backspace
+                                          var input = elem.val();
+                                          var cursorPosition = cursor.getPosition(elem);
+                                          if (input[cursorPosition - 1] === '/') {
+                                            cursor.setPosition(elem, --cursorPosition);
+                                          }
+                                        }
+        });
+
+        /**
+         * registers the parseModel method for the initialization of the scope from the DOM.
+         * @param modelValue String, a date string assumed to be in modelFormat
+         */
+        ngModelCtrl.$formatters.unshift(function initialView(modelValue) {
+          var viewValue = modelValue;
+          if (!!modelValue) {
+            viewValue = scope.parseModel(modelValue);
+            ngModelCtrl.$pristine = false;
+            ngModelCtrl.$setViewValue(viewValue);
+            ngModelCtrl.$pristine = true;
+          }
+          return viewValue;
+        });
+
+        /**
+         * parses the date view value (from the input box) into the view format provided.
+         * @viewValue a date string
+         */
+        ngModelCtrl.$parsers.push(function updateView(viewValue) {
+          if (viewValue === undefined) {
+            viewValue = '';
+          }
+          var now = new Date();
+          var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+          scope.log.unshift('updateView: ' + viewValue + ' ' + timestamp);
+          console.log('1. updateView: ' + viewValue + ' ' + timestamp);
+          viewValue = scope.formatView(viewValue);
+          now = new Date();
+          timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+          console.log('1. updateView formatted: ' + viewValue + ' ' + timestamp);
+
+          scope.$evalAsync(function updateDom() {
+            var now = new Date();
+            var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+            scope.log.unshift('updateView async: ' + viewValue + ' ' + timestamp);
+            console.log('  1. updateView async: ' + viewValue + ' ' + timestamp);
+            elem.val(viewValue);
+          });
+
+          return viewValue;
+        });
+
+        // Validate the input at every change
+        ngModelCtrl.$parsers.push(function inputValidator(viewValue) {
+          var valid = scope.isValidDate(viewValue);
+          var now = new Date();
+          var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+          scope.log.unshift('inputValidator: ' + viewValue + ' ' + timestamp);
+          console.log('2. inputValidator: ' + viewValue + ' ' + timestamp);
+
+          // If the user hasn't done anything yet, don't show them a red warning
+          if ('required' in attrs && viewValue.length === 0 && ngModelCtrl.$pristine) {
+            valid = true;
+          }
+          ngModelCtrl.$setValidity(fieldName, valid);
+          ngModelCtrl.$valid = valid;
+          applyErrorClass(valid);
+          return viewValue;
+        });
+
+        var applyErrorClass = function (valid) {
+          if (valid) {
+            elem.removeClass('has-error');
           } else {
-            cursor.setPosition(elem, elem.val().length);
+            elem.addClass('has-error');
           }
-        });
-        return modelValue;
-      });
+        };
 
+        // Parses the date view value (from the input box) into the view format provided.
+        ngModelCtrl.$parsers.push(function updateModel(viewValue) {
+          var modelValue = viewValue;
+          var now = new Date();
+          var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+          scope.log.unshift('updateModel: ' + viewValue + ' ' + timestamp);
+          console.log('3. updateModel: ' + viewValue + ' ' + timestamp);
+          if (ngModelCtrl.$valid) {
+            modelValue = scope.formatModel(viewValue);
+          } else {
+            modelValue = '';
+          }
+          scope.resetDate();
+          return modelValue;
+        });
+
+        // Place the cursor before the first placeholder or at the end of the input
+        ngModelCtrl.$parsers.push(function updateCursor(modelValue) {
+          var now = new Date();
+          var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+          scope.log.unshift('updateCursor: ' + modelValue + ' ' + timestamp);
+          console.log('4. updateCursor: ' + modelValue + ' ' + timestamp);
+          scope.$$postDigest(function () {
+            var now = new Date();
+            var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
+            scope.log.unshift('updateCursor postDigest: ' + modelValue + ' ' + timestamp);
+            console.log('  4. updateCursor postDigest: ' + modelValue + ' ' + timestamp);
+            var firstPlaceHolder = elem.val().search(/[mdy]/);
+            if (firstPlaceHolder >= 0) {
+              cursor.setPosition(elem, firstPlaceHolder);
+            } else {
+              cursor.setPosition(elem, elem.val().length);
+            }
+          });
+          return modelValue;
+        });
+
+      }
     }
   };
 }]);
