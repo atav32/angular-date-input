@@ -342,8 +342,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       scope.log = [];
 
       elem.bind('keypress', function handleKeyPress(event) {
+        console.log('\n\n%c ', 'color:#0b0');
         if (event.which === 229) {
-          return;
+          console.log('%c keyboard: ', 'color:#0b0', event);
         }
 
         // move the cursor if the user enters a number by slicing next character
@@ -372,8 +373,9 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       });
 
       elem.bind('keydown', function handleKeyPress(event) {
+        console.log('\n\n%c ', 'color:#0b0');
         if (event.which === 229) {
-          return;
+          console.log('%c keydown: ', 'color:#0b0', event);
         }
 
         var now = new Date();
@@ -382,7 +384,7 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
         scope.log.unshift('-');
         scope.log.unshift('keydown:  ' + event.which + ' ' + String.fromCharCode(event.which) + ' ' +
                           elem.val() + ' ' + timestamp);
-        console.log('\n\nkeydown:  ', event.which, String.fromCharCode(event.which) + ' ' +
+        console.log('keydown:  ', event.which, String.fromCharCode(event.which) + ' ' +
                     elem.val() + ' ' + timestamp);
         if (event.which === 8) {
           // Backspace
