@@ -342,6 +342,10 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       scope.log = [];
 
       elem.bind('keypress', function handleKeyPress(event) {
+        if (event.which === 229) {
+          return;
+        }
+
         // move the cursor if the user enters a number by slicing next character
         var character = String.fromCharCode(event.which);
         var now = new Date();
@@ -368,6 +372,10 @@ demoApp.directive('dateInput', ['cursor', function (cursor) {
       });
 
       elem.bind('keydown', function handleKeyPress(event) {
+        if (event.which === 229) {
+          return;
+        }
+
         var now = new Date();
         var timestamp = now.getSeconds() + ':' + now.getMilliseconds();
         scope.keydown = String.fromCharCode(event.which) + ' ' + timestamp;
